@@ -1,44 +1,41 @@
-Student Performance Prediction
+# Student Performance Prediction
 
-About the Project:
-Student Performance Prediction is a machine learning project that predicts a student's expected academic marks based on study-related information. The goal is to explore how machine learning can help understand student performance.
+## Overview
+A beginner machine learning project that predicts student
+final marks using study hours, attendance, and previous marks.
 
-Objectives:
-.Predict student marks using a trained machine learning model.
-.Understand the relationship between study habits and academic performance.
-.Practice data preprocessing, model training, and prediction.
-.Apply machine learning to a real-world educational problem.
+## Objective
+Learn the complete machine learning workflow, from data
+preparation and model training to evaluation and prediction.
 
-Technologies Used :
-.Python
-.Machine Learning
-.Pandas and NumPy (if used in your implementation)
-.Scikit-learn (if used in your implementation)
+## Technologies
+- Python
+- Pandas
+- NumPy
+- scikit-learn
+- Matplotlib
+- Google Colab
 
-Features:
-Accepts student-related input data.
-Predicts expected marks using a trained model.
-Demonstrates a basic machine learning prediction workflow.
+## Models
+- Linear Regression
+- Decision Tree Regressor
 
-Project Structure:
-STUDENT-PERFORMANCE-PREDICTION/
-├── student_performance.py
-├── student_data.csv
-└── README.md 
-Note: Update the filenames above to match the actual files in your repository.
+## Workflow
+1. Create and inspect the dataset.
+2. Check missing values and duplicate rows.
+3. Separate features and target.
+4. Split data into training and testing sets.
+5. Train and compare models.
+6. Evaluate using MAE and RMSE.
+7. Save the trained model and predict new examples.
 
-How to Run :
-Install Python 3.
-Download or clone this repository.
-Open a terminal in the project folder.
-Install the dependencies required by your code.
-Run the Python prediction script.
+## Dataset Disclaimer
+The current dataset contains 10 manually created examples.
+It is intended for learning and does not establish
+real-world predictive performance.
 
-Learning Outcomes:
-This project helped me practice Python programming, machine learning concepts, prediction workflows, and project documentation.
-
-Future Improvements:
-.Evaluate prediction accuracy using suitable metrics.
-.Add more student-related features.
-.Build a simple web interface for predictions.
-.Improve the model using additional data.
+## Future Improvements
+- Use a suitable real-world dataset.
+- Perform more reliable model evaluation.
+- Build a prediction API.
+- Add automated tests.
