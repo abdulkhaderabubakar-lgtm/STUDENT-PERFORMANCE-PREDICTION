@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance AI Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #1e293b;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        .container {
+            width: min(1100px, 94%);
+            margin: 28px auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary {
+            background: #475569;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .result {
+            text-align: center;
+            padding: 20px;
+            background: #eff6ff;
+            border-radius: 12px;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 12px 0;
+        }
+
+        .status {
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .stat p {
+            color: #64748b;
+            margin: 0 0 8px;
+        }
+
+        .stat strong {
+            font-size: 24px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .chart-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+            min-width: 0;
+        }
+
+        .chart-panel h2 {
+            font-size: 18px;
+            margin-top: 0;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            min-height: 240px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 240px;
+        }
+
+        .chart-empty {
+            color: #64748b;
+            text-align: center;
+            padding: 65px 10px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-top: 12px;
+            color: #b91c1c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+        }
+
+        @media (max-width: 700px) {
+            .grid,
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 20px 12px;
+            }
+
+            .card {
+                padding: 17px;
+            }
+        }
+
+        .auth-container {
+            width: min(460px, 94%);
+            margin: 32px auto;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .auth-tabs button {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        .auth-tabs .active {
+            background: #172554;
+        }
+
+        .auth-form[hidden],
+        #dashboard-main[hidden],
+        footer[hidden],
+        #account-bar[hidden],
+        #register-form[hidden],
+        #auth-panel[hidden] {
+            display: none !important;
+        }
+
+        .auth-note {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #account-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        #account-bar button {
+            margin-top: 0;
+            padding: 8px 12px;
+        }
+
+        .success-message {
+            color: #047857;
+            margin-top: 12px;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Student Performance AI</h1>
+    <p>Predict student performance and explore prediction trends</p>
+    <div id="account-bar" hidden>
+        <span id="account-name"></span>
+        <button type="button" id="logout-button" class="secondary">Log out</button>
+    </div>
+</header>
+
+<section class="auth-container" id="auth-panel">
+    <div class="card">
+        <h2 id="auth-title">Welcome back</h2>
+        <p class="auth-note">Log in to save and view your own student performance predictions.</p>
+
+        <div class="auth-tabs">
+            <button type="button" id="show-login" class="active">Log in</button>
+            <button type="button" id="show-register" class="secondary">Register</button>
+        </div>
+
+        <form id="login-form" class="auth-form">
+            <label for="login-username">Username</label>
+            <input id="login-username" name="username" type="text" minlength="3" maxlength="30" autocomplete="username" required>
+
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+
+            <button type="submit" id="login-button">Log in</button>
+        </form>
+
+        <form id="register-form" class="auth-form" hidden>
+            <label for="register-username">Choose a username</label>
+            <input id="register-username" name="username" type="text" minlength="3" maxlength="30" autocomplete="username" required>
+
+            <label for="register-password">Create a password (at least 8 characters)</label>
+            <input id="register-password" name="password" type="password" minlength="8" autocomplete="new-password" required>
+
+            <button type="submit" id="register-button">Create account</button>
+        </form>
+
+        <p id="auth-message" class="message" role="alert"></p>
+        <p id="auth-success" class="success-message" role="status"></p>
+    </div>
+</section>
+
+<main class="container" id="dashboard-main" hidden>
+
+    <section class="grid">
+
+        <div class="card">
+            <h2>Predict Performance</h2>
+
+            <form id="prediction-form">
+                <label for="study-hours">Study Hours Per Day</label>
+                <input
+                    type="number"
+                    id="study-hours"
+                    min="0"
+                    max="24"
+                    step="0.5"
+                    value="4"
+                    required
+                >
+
+                <label for="attendance">Attendance (%)</label>
+                <input
+                    type="number"
+                    id="attendance"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="85"
+                    required
+                >
+
+                <label for="previous-score">Previous Exam Score (%)</label>
+                <input
+                    type="number"
+                    id="previous-score"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="70"
+                    required
+                >
+
+                <button type="submit" id="predict-button">
+                    Predict Performance
+                </button>
+
+                <p class="message" id="error-message" role="alert"></p>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Prediction Result</h2>
+
+            <div class="result" aria-live="polite">
+                <p>Predicted Score</p>
+                <div class="score" id="predicted-score">--</div>
+                <div class="status" id="performance-status">
+                    Enter student details to begin
+                </div>
+            </div>
+
+            <p id="result-details">
+                Your prediction will appear here.
+            </p>
+        </div>
+
+    </section>
+
+    <section class="card">
+        <h2>Dashboard Statistics</h2>
+
+        <div class="stats">
+            <div class="stat">
+                <p>Total Predictions</p>
+                <strong id="total-predictions">0</strong>
+            </div>
+
+            <div class="stat">
+                <p>Average Predicted Score</p>
+                <strong id="average-score">--</strong>
+            </div>
+
+            <div class="stat">
+                <p>Highest Predicted Score</p>
+                <strong id="highest-score">--</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="analytics-grid">
+
+        <div class="chart-panel">
+            <h2>Prediction Trend</h2>
+            <p>Predicted scores from your latest 10 predictions.</p>
+
+            <div class="chart-wrap">
+                <canvas id="trend-chart" aria-label="Line chart showing recent predicted scores">
+                    Your browser does not support canvas charts.
+                </canvas>
+                <div class="chart-empty" id="trend-empty">
+                    Make a prediction to see your trend.
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-panel">
+            <h2>Recent Score Comparison</h2>
+            <p>Compare the latest 8 predicted scores.</p>
+
+            <div class="chart-wrap">
+                <canvas id="comparison-chart" aria-label="Bar chart comparing recent predicted scores">
+                    Your browser does not support canvas charts.
+                </canvas>
+                <div class="chart-empty" id="comparison-empty">
+                    Make a prediction to compare scores.
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="card">
+        <h2>Prediction History</h2>
+
+        <button type="button" id="export-button" class="secondary">
+            Export CSV
+        </button>
+
+        <button type="button" id="clear-button" class="danger">
+            Clear History
+        </button>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Study Hours</th>
+                        <th>Attendance</th>
+                        <th>Previous Score</th>
+                        <th>Predicted Score</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+
+                <tbody id="history-body">
+                    <tr>
+                        <td colspan="6">No predictions yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<footer id="dashboard-footer" hidden>
+    Student Performance AI Dashboard
+</footer>
+<script>
+    const authPanel = document.getElementById("auth-panel");
+    const dashboardMain = document.getElementById("dashboard-main");
+    const dashboardFooter = document.getElementById("dashboard-footer");
+    const accountBar = document.getElementById("account-bar");
+    const accountName = document.getElementById("account-name");
+
+    const loginForm = document.getElementById("login-form");
+    const registerForm = document.getElementById("register-form");
+
+    const authMessage = document.getElementById("auth-message");
+    const authSuccess = document.getElementById("auth-success");
+
+    const historyBody = document.getElementById("history-body");
+    const errorMessage = document.getElementById("error-message");
+
+    let predictions = [];
+    let lastPrediction = null;
+
+    function showDashboard(username) {
+        authPanel.hidden = true;
+        dashboardMain.hidden = false;
+        dashboardFooter.hidden = false;
+        accountBar.hidden = false;
+
+        accountName.textContent = "Logged in as " + username;
+
+        authMessage.textContent = "";
+        authSuccess.textContent = "";
+
+        loadPredictions();
+    }
+
+    function showAuth() {
+        authPanel.hidden = false;
+        dashboardMain.hidden = true;
+        dashboardFooter.hidden = true;
+        accountBar.hidden = true;
+
+        predictions = [];
+        lastPrediction = null;
+
+        document.getElementById("total-predictions").textContent = "0";
+        document.getElementById("average-score").textContent = "--";
+        document.getElementById("highest-score").textContent = "--";
+        document.getElementById("predicted-score").textContent = "--";
+        document.getElementById("performance-status").textContent =
+            "Enter student details to begin";
+        document.getElementById("result-details").textContent =
+            "Your prediction will appear here.";
+
+        historyBody.innerHTML =
+            '<tr><td colspan="6">No predictions yet.</td></tr>';
+
+        clearChart("trend-chart", "trend-empty");
+        clearChart("comparison-chart", "comparison-empty");
+    }
+
+    function switchToLogin() {
+        loginForm.hidden = false;
+        registerForm.hidden = true;
+
+        document.getElementById("auth-title").textContent = "Welcome back";
+        document.getElementById("show-login").classList.add("active");
+        document.getElementById("show-register").classList.remove("active");
+        document.getElementById("show-register").classList.add("secondary");
+        document.getElementById("show-login").classList.remove("secondary");
+
+        authMessage.textContent = "";
+        authSuccess.textContent = "";
+    }
+
+    function switchToRegister() {
+        loginForm.hidden = true;
+        registerForm.hidden = false;
+
+        document.getElementById("auth-title").textContent = "Create your account";
+        document.getElementById("show-register").classList.add("active");
+        document.getElementById("show-login").classList.remove("active");
+        document.getElementById("show-login").classList.add("secondary");
+        document.getElementById("show-register").classList.remove("secondary");
+
+        authMessage.textContent = "";
+        authSuccess.textContent = "";
+    }
+
+    async function requestJSON(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                ...(options.headers || {})
+            }
+        });
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error("The server returned an invalid response.");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || data.message || "Request failed.");
+        }
+
+        return data;
+    }
+
+    document.getElementById("show-login").addEventListener(
+        "click",
+        switchToLogin
+    );
+
+    document.getElementById("show-register").addEventListener(
+        "click",
+        switchToRegister
+    );
+
+    registerForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        authMessage.textContent = "";
+        authSuccess.textContent = "";
+
+        const username = document.getElementById("register-username")
+            .value.trim();
+
+        const password = document.getElementById("register-password").value;
+
+        if (username.length < 3 || username.length > 30) {
+            authMessage.textContent =
+                "Username must contain 3 to 30 characters.";
+            return;
+        }
+
+        if (password.length < 8) {
+            authMessage.textContent =
+                "Password must contain at least 8 characters.";
+            return;
+        }
+
+        const button = document.getElementById("register-button");
+        button.disabled = true;
+        button.textContent = "Creating account...";
+
+        try {
+            await requestJSON("/register", {
+                method: "POST",
+                body: JSON.stringify({ username, password })
+            });
+
+            registerForm.reset();
+            switchToLogin();
+
+            document.getElementById("login-username").value = username;
+
+            authSuccess.textContent =
+                "Account created successfully. Please log in.";
+        } catch (error) {
+            authMessage.textContent = error.message;
+        } finally {
+            button.disabled = false;
+            button.textContent = "Create account";
+        }
+    });
+
+    loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        authMessage.textContent = "";
+        authSuccess.textContent = "";
+
+        const username = document.getElementById("login-username")
+            .value.trim();
+
+        const password = document.getElementById("login-password").value;
+
+        const button = document.getElementById("login-button");
+        button.disabled = true;
+        button.textContent = "Logging in...";
+
+        try {
+            const result = await requestJSON("/login", {
+                method: "POST",
+                body: JSON.stringify({ username, password })
+            });
+
+            loginForm.reset();
+
+            showDashboard(
+                result.username ||
+                result.user?.username ||
+                username
+            );
+        } catch (error) {
+            authMessage.textContent = error.message;
+        } finally {
+            button.disabled = false;
+            button.textContent = "Log in";
+        }
+    });
+
+    document.getElementById("logout-button").addEventListener(
+        "click",
+        async function () {
+            try {
+                await requestJSON("/logout", {
+                    method: "POST",
+                    body: JSON.stringify({})
+                });
+
+                showAuth();
+                switchToLogin();
+            } catch (error) {
+                alert("Could not log out: " + error.message);
+            }
+        }
+    );
+
+    async function checkLogin() {
+        try {
+            const result = await requestJSON("/me");
+
+            if (
+                result.authenticated ||
+                result.logged_in ||
+                result.user_id ||
+                result.username ||
+                result.user
+            ) {
+                const username =
+                    result.username ||
+                    result.user?.username ||
+                    "user";
+
+                showDashboard(username);
+            } else {
+                showAuth();
+            }
+        } catch {
+            showAuth();
+        }
+    }
+
+    async function loadPredictions() {
+        try {
+            const result = await requestJSON("/predictions");
+
+            if (Array.isArray(result)) {
+                predictions = result;
+            } else if (Array.isArray(result.predictions)) {
+                predictions = result.predictions;
+            } else if (Array.isArray(result.data)) {
+                predictions = result.data;
+            } else {
+                predictions = [];
+            }
+
+            updateDashboard();
+        } catch (error) {
+            errorMessage.textContent =
+                "Could not load prediction history: " + error.message;
+        }
+    }
+
+    function getValue(item, possibleKeys) {
+        for (const key of possibleKeys) {
+            if (item[key] !== undefined && item[key] !== null) {
+                return item[key];
+            }
+        }
+
+        return null;
+    }
+
+    function getStudyHours(item) {
+        return getValue(item, [
+            "study_hours",
+            "study_hours_per_day",
+            "studyHours"
+        ]);
+    }
+
+    function getAttendance(item) {
+        return getValue(item, [
+            "attendance",
+            "attendance_percentage"
+        ]);
+    }
+
+    function getPreviousScore(item) {
+        return getValue(item, [
+            "previous_score",
+            "previous_exam_score",
+            "previousScore"
+        ]);
+    }
+
+    function getPredictedScore(item) {
+        return getValue(item, [
+            "predicted_score",
+            "predictedScore",
+            "prediction",
+            "score"
+        ]);
+    }
+
+    function getPerformance(item) {
+        const explicit = getValue(item, [
+            "performance",
+            "status",
+            "category"
+        ]);
+
+        if (explicit !== null) {
+            return explicit;
+        }
+
+        const score = Number(getPredictedScore(item));
+
+        if (!Number.isFinite(score)) {
+            return "Unknown";
+        }
+
+        if (score >= 75) return "Excellent";
+        if (score >= 60) return "Good";
+        if (score >= 40) return "Average";
+
+        return "Needs Improvement";
+    }
+
+    function formatNumber(value, decimals = 1) {
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+            return "--";
+        }
+
+        return number.toFixed(decimals);
+    }
+
+    function updateDashboard() {
+        updateStats();
+        updateHistory();
+        updateCharts();
+    }
+
+    function updateStats() {
+        const scores = predictions
+            .map(item => Number(getPredictedScore(item)))
+            .filter(score => Number.isFinite(score));
+
+        document.getElementById("total-predictions").textContent =
+            predictions.length;
+
+        if (scores.length === 0) {
+            document.getElementById("average-score").textContent = "--";
+            document.getElementById("highest-score").textContent = "--";
+            return;
+        }
+
+        const average =
+            scores.reduce((total, score) => total + score, 0) / scores.length;
+
+        document.getElementById("average-score").textContent =
+            formatNumber(average) + "%";
+
+        document.getElementById("highest-score").textContent =
+            formatNumber(Math.max(...scores)) + "%";
+    }
+
+    function updateHistory() {
+        historyBody.innerHTML = "";
+
+        if (predictions.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.colSpan = 6;
+            cell.textContent = "No predictions yet.";
+
+            row.appendChild(cell);
+            historyBody.appendChild(row);
+            return;
+        }
+
+        predictions.forEach((item, index) => {
+            const row = document.createElement("tr");
+
+            const values = [
+                index + 1,
+                getStudyHours(item),
+                getAttendance(item),
+                getPreviousScore(item),
+                getPredictedScore(item),
+                getPerformance(item)
+            ];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value === null ? "--" : value;
+                row.appendChild(cell);
+            });
+
+            historyBody.appendChild(row);
+        });
+    }
+        function updateCharts() {
+        const recent = predictions.slice(0, 10).reverse();
+
+        const scores = recent
+            .map(item => Number(getPredictedScore(item)))
+            .filter(score => Number.isFinite(score));
+
+        drawLineChart(
+            "trend-chart",
+            "trend-empty",
+            scores
+        );
+
+        drawBarChart(
+            "comparison-chart",
+            "comparison-empty",
+            scores.slice(-8)
+        );
+    }
+
+    function clearChart(canvasId, emptyId) {
+        const canvas = document.getElementById(canvasId);
+        const context = canvas.getContext("2d");
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        document.getElementById(emptyId).hidden = false;
+        canvas.hidden = true;
+    }
+
+    function prepareCanvas(canvasId, emptyId) {
+        const canvas = document.getElementById(canvasId);
+        const context = canvas.getContext("2d");
+
+        const width = Math.max(
+            280,
+            canvas.parentElement.clientWidth
+        );
+
+        const height = 240;
+        const ratio = window.devicePixelRatio || 1;
+
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        canvas.style.width = "100%";
+        canvas.style.height = height + "px";
+
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        canvas.hidden = false;
+        document.getElementById(emptyId).hidden = true;
+
+        return {
+            canvas,
+            context,
+            width,
+            height
+        };
+    }
+
+    function drawLineChart(canvasId, emptyId, values) {
+        if (!values.length) {
+            clearChart(canvasId, emptyId);
+            return;
+        }
+
+        const { context: ctx, width, height } =
+            prepareCanvas(canvasId, emptyId);
+
+        const padding = {
+            top: 20,
+            right: 20,
+            bottom: 35,
+            left: 40
+        };
+
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "#64748b";
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 1;
+
+        [0, 25, 50, 75, 100].forEach(value => {
+            const y = padding.top +
+                chartHeight - (value / 100) * chartHeight;
+
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(width - padding.right, y);
+            ctx.stroke();
+
+            ctx.fillText(String(value), 8, y + 4);
+        });
+
+        const points = values.map((value, index) => {
+            const x = values.length === 1
+                ? padding.left + chartWidth / 2
+                : padding.left +
+                    (index / (values.length - 1)) * chartWidth;
+
+            const y = padding.top +
+                chartHeight -
+                (Math.max(0, Math.min(100, value)) / 100) * chartHeight;
+
+            return { x, y, value };
+        });
+
+        ctx.strokeStyle = "#2563eb";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        points.forEach((point, index) => {
+            if (index === 0) {
+                ctx.moveTo(point.x, point.y);
+            } else {
+                ctx.lineTo(point.x, point.y);
+            }
+        });
+
+        ctx.stroke();
+
+        points.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = "#2563eb";
+            ctx.fill();
+
+            ctx.fillStyle = "#334155";
+            ctx.fillText(
+                Math.round(point.value),
+                point.x - 8,
+                point.y - 10
+            );
+        });
+
+        ctx.fillStyle = "#64748b";
+        ctx.fillText("Older", padding.left, height - 8);
+        ctx.fillText("Recent", width - padding.right - 40, height - 8);
+    }
+
+    function drawBarChart(canvasId, emptyId, values) {
+        if (!values.length) {
+            clearChart(canvasId, emptyId);
+            return;
+        }
+
+        const { context: ctx, width, height } =
+            prepareCanvas(canvasId, emptyId);
+
+        const padding = {
+            top: 20,
+            right: 15,
+            bottom: 35,
+            left: 35
+        };
+
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "#64748b";
+        ctx.strokeStyle = "#e2e8f0";
+
+        [0, 25, 50, 75, 100].forEach(value => {
+            const y = padding.top +
+                chartHeight - (value / 100) * chartHeight;
+
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(width - padding.right, y);
+            ctx.stroke();
+
+            ctx.fillText(String(value), 3, y + 4);
+        });
+
+        const gap = 8;
+        const barWidth = Math.max(
+            8,
+            (chartWidth - gap * (values.length - 1)) / values.length
+        );
+
+        values.forEach((value, index) => {
+            const barHeight =
+                (Math.max(0, Math.min(100, value)) / 100) * chartHeight;
+
+            const x = padding.left + index * (barWidth + gap);
+            const y = padding.top + chartHeight - barHeight;
+
+            ctx.fillStyle = "#0d9488";
+            ctx.fillRect(x, y, barWidth, barHeight);
+
+            ctx.fillStyle = "#334155";
+            ctx.fillText(
+                String(Math.round(value)),
+                x,
+                Math.max(12, y - 5)
+            );
+        });
+
+        ctx.fillStyle = "#64748b";
+        ctx.fillText("Recent predictions", padding.left, height - 8);
+    }
+
+    document.getElementById("prediction-form").addEventListener(
+        "submit",
+        async function (event) {
+            event.preventDefault();
+
+            errorMessage.textContent = "";
+
+            const studyHours = Number(
+                document.getElementById("study-hours").value
+            );
+
+            const attendance = Number(
+                document.getElementById("attendance").value
+            );
+
+            const previousScore = Number(
+                document.getElementById("previous-score").value
+            );
+
+            if (
+                !Number.isFinite(studyHours) ||
+                studyHours < 0 ||
+                studyHours > 24
+            ) {
+                errorMessage.textContent =
+                    "Study hours must be between 0 and 24.";
+                return;
+            }
+
+            if (
+                !Number.isFinite(attendance) ||
+                attendance < 0 ||
+                attendance > 100
+            ) {
+                errorMessage.textContent =
+                    "Attendance must be between 0 and 100.";
+                return;
+            }
+
+            if (
+                !Number.isFinite(previousScore) ||
+                previousScore < 0 ||
+                previousScore > 100
+            ) {
+                errorMessage.textContent =
+                    "Previous score must be between 0 and 100.";
+                return;
+            }
+
+            const button = document.getElementById("predict-button");
+            button.disabled = true;
+            button.textContent = "Predicting...";
+
+            try {
+                const result = await requestJSON("/predict", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        study_hours: studyHours,
+                        attendance: attendance,
+                        previous_score: previousScore
+                    })
+                });
+
+                const score = Number(
+                    getValue(result, [
+                        "predicted_score",
+                        "predictedScore",
+                        "prediction",
+                        "score"
+                    ])
+                );
+
+                if (!Number.isFinite(score)) {
+                    throw new Error(
+                        "The server response did not include a valid predicted score."
+                    );
+                }
+
+                const performance =
+                    getValue(result, [
+                        "performance",
+                        "status",
+                        "category"
+                    ]) || (
+                        score >= 75 ? "Excellent" :
+                        score >= 60 ? "Good" :
+                        score >= 40 ? "Average" :
+                        "Needs Improvement"
+                    );
+
+                document.getElementById("predicted-score").textContent =
+                    score.toFixed(1) + "%";
+
+                document.getElementById("performance-status").textContent =
+                    performance;
+
+                document.getElementById("result-details").textContent =
+                    "Study hours: " + studyHours +
+                    " | Attendance: " + attendance + "%" +
+                    " | Previous score: " + previousScore + "%";
+
+                lastPrediction = result;
+
+                await loadPredictions();
+            } catch (error) {
+                errorMessage.textContent =
+                    "Prediction failed: " + error.message;
+            } finally {
+                button.disabled = false;
+                button.textContent = "Predict Performance";
+            }
+        }
+    );
+
+    document.getElementById("clear-button").addEventListener(
+        "click",
+        async function () {
+            if (
+                !confirm(
+                    "Are you sure you want to delete all your prediction history?"
+                )
+            ) {
+                return;
+            }
+
+            try {
+                await requestJSON("/predictions", {
+                    method: "DELETE"
+                });
+
+                predictions = [];
+                lastPrediction = null;
+
+                updateDashboard();
+
+                document.getElementById("predicted-score").textContent = "--";
+                document.getElementById("performance-status").textContent =
+                    "Enter student details to begin";
+
+                document.getElementById("result-details").textContent =
+                    "Your prediction will appear here.";
+
+                errorMessage.textContent = "";
+            } catch (error) {
+                errorMessage.textContent =
+                    "Could not clear history: " + error.message;
+            }
+        }
+    );
+
+    document.getElementById("export-button").addEventListener(
+        "click",
+        function () {
+            if (!predictions.length) {
+                alert("There is no prediction history to export.");
+                return;
+            }
+
+            const headers = [
+                "Study Hours",
+                "Attendance",
+                "Previous Score",
+                "Predicted Score",
+                "Performance"
+            ];
+
+            const rows = predictions.map(item => [
+                getStudyHours(item),
+                getAttendance(item),
+                getPreviousScore(item),
+                getPredictedScore(item),
+                getPerformance(item)
+            ]);
+
+            function escapeCSV(value) {
+                const text = String(value ?? "");
+
+                return '"' + text.replace(/"/g, '""') + '"';
+            }
+
+            const csv = [
+                headers.map(escapeCSV).join(","),
+                ...rows.map(row => row.map(escapeCSV).join(","))
+            ].join("\r\n");
+
+            const blob = new Blob(
+                ["\uFEFF" + csv],
+                { type: "text/csv;charset=utf-8;" }
+            );
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = "student_predictions.csv";
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            URL.revokeObjectURL(url);
+        }
+    );
+
+    window.addEventListener("resize", function () {
+        if (!dashboardMain.hidden) {
+            updateCharts();
+        }
+    });
+
+    checkLogin();
+</script>
+
+</body>
+</html>
